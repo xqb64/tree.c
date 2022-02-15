@@ -24,11 +24,9 @@ struct dirent *superscalar_readdir(DIR *path) {
 }
 
 void traverse(char *current, int depth, bool is_parent_last) {
-    int sieved_sz;
-    struct dirent *file, *next;
     DIR *path;
+    struct dirent *file, *next;
     
-    sieved_sz = 256;
     path = opendir(current);
     file = superscalar_readdir(path);
     next = superscalar_readdir(path);
