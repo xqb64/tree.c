@@ -15,6 +15,12 @@ void print_parent_prefix(int depth, bool is_parent_last) {
 }
 
 struct dirent *superscalar_readdir(DIR *path) {
+    /* 
+     * Since readdir(3) returns both "." and "..", we need readdir-like
+     * function that will read the directory and return everything except
+     * "." and "..". Otherwise, one of "." or ".." may be read last which
+     * breaks the code that checks if an entry is the last entry in the dir.
+     */
     while (true) {
         struct dirent *p = readdir(path);
         if (!p) return NULL;
