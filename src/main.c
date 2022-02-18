@@ -4,14 +4,11 @@
 #include <string.h>
 
 void print_parent_prefix(int depth, bool is_parent_last) {
-    if (is_parent_last) {
-        for (int i = 0; i < depth-1; ++i)
-            printf("┃ ");
+    int adjusted_depth = is_parent_last ? depth - 1 : depth;
+    for (int i = 0; i < adjusted_depth; ++i)
+        printf("┃ ");
+    if (is_parent_last)
         printf("  ");               
-    } else {
-        for (int i = 0; i < depth; ++i)
-            printf("┃ ");
-    }
 }
 
 struct dirent *superscalar_readdir(DIR *path) {
@@ -29,7 +26,12 @@ struct dirent *superscalar_readdir(DIR *path) {
     }
 }
 
-void traverse(char *current, int depth, bool is_parent_last) {
+void traverse(
+    char *current,
+    bool exclude_hidden_files,
+    int depth,
+    bool is_parent_last
+) {
     DIR *path;
     struct dirent *file, *next;
     
@@ -38,6 +40,9 @@ void traverse(char *current, int depth, bool is_parent_last) {
     next = superscalar_readdir(path);
 
     for (; file; file = next, next = superscalar_readdir(path)) {
+        if (exclude_hidden_files && strncmp(file->d_name, ".", 1) == 0)
+            continue;
+        
         bool is_last = next == NULL;
         const char *filename_prefix = is_last ? "┗━" : "┣━";
         
@@ -48,7 +53,7 @@ void traverse(char *current, int depth, bool is_parent_last) {
             
             char spam[PATH_MAX];
             snprintf(spam, PATH_MAX, "%s/%s", current, file->d_name);
-            traverse(spam, depth+1, is_last);
+            traverse(spam, exclude_hidden_files, depth+1, is_last);
         } else {
             printf("%s %s\n", filename_prefix, file->d_name);
         }
@@ -58,5 +63,10 @@ void traverse(char *current, int depth, bool is_parent_last) {
 }
 
 int main(int argc, char *argv[]) {
-    traverse(argv[1], 0, false);
+    bool exclude_hidden_files = false;
+
+    if (argv[2]) 
+        exclude_hidden_files = strcmp(argv[2], "-e") == 0;
+
+    traverse(argv[1], exclude_hidden_files, 0, false);
 }
