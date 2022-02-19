@@ -51,9 +51,9 @@ void traverse(
         if (file->d_type == DT_DIR) {
             printf("%s %s\n", filename_prefix, file->d_name);
             
-            char spam[PATH_MAX];
-            snprintf(spam, PATH_MAX, "%s/%s", current, file->d_name);
-            traverse(spam, exclude_hidden_files, depth+1, is_last);
+            char buf[PATH_MAX];
+            snprintf(buf, PATH_MAX, "%s/%s", current, file->d_name);
+            traverse(buf, exclude_hidden_files, depth+1, is_last);
         } else {
             printf("%s %s\n", filename_prefix, file->d_name);
         }
