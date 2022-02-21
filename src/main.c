@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <dirent.h>
 #include <string.h>
@@ -45,6 +46,11 @@ void traverse(
         
         bool is_last = next == NULL;
         const char *filename_prefix = is_last ? "┗━" : "┣━";
+
+        if (file->d_type == DT_LNK) {
+            printf("%s %s -> %s\n", filename_prefix, file->d_name, realpath(file->d_name, NULL));
+            continue;
+        }
         
         print_parent_prefix(depth, is_parent_last);
    
